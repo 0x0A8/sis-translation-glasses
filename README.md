@@ -20,29 +20,24 @@ Project Lens is a senior independent study building wearable smart glasses capab
 | 🎙️ Live STT | Continuous speech-to-text from integrated microphones |
 | 🌐 Neural Translation | Low-latency multilingual translation at the edge or via API |
 | 🔊 Audio Output | Translated speech via bone conduction or earpiece |
-| 👓 Minimal UX | HUD overlay or audio-only — no hands required |
+| 👓 Visual Output | Translated text displayed on transparent OLED |
+| 👓 Minimal UX | HUD overlay and audio-only — no hands required |
 
 ---
 
 ## Planned Stack
 
-- **Hardware:** ESP32-S3
-- **Speech-to-Text:** OpenAI Whisper (edge)
+- **MCU:** ESP32-S3
+- **WiFi/BLE:** ESP32-S3
+- **VAD:**
+- **ASR:**
 - **Translation:** Helsinki NLP / Meta NLLB
-- **Runtime:** Python, TFLite / ONNX
+- **STT Synthesizer:**
 - **Audio Input:** Two I2S MEMS Microphones
 - **Audio Output:** Bone conduction transducer
+- **Visual Output:** Transparent OLED display
 - **Frame:** Standard Glasses
-
----
-
-## Milestones
-
-- [ ] **Phase 1** — Project setup, repo structure, literature review
-- [ ] **Phase 2** — Hardware prototype v1 (frame + mic + speaker)
-- [ ] **Phase 3** — STT + translation pipeline with latency benchmarks
-- [ ] **Phase 4** — Integration into wearable form factor
-- [ ] **Phase 5** — Live demo & final SIS presentation
+- **Power:** 1000mAh LiPo Battery
 
 ---
 
