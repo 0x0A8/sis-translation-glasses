@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Glasses — Component Test Checklist</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f13;
+    --bg2: #16161d;
+    --bg3: #1e1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f4;
+    --muted: #888898;
+    --faint: #444458;
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.1);
+    --teal: #34d399;
+    --teal-bg: rgba(52,211,153,0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --green: #34d399;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(167,139,250,0.15), transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--purple);
+    background: var(--purple-bg); border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 99px; padding: 4px 14px; margin-bottom: 1.2rem;
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #f0f0f4 30%, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 0.75rem;
+  }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 480px; margin: 0 auto 2rem; }
+
+  /* ── STATS ── */
+  .stats-row {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;
+    margin-top: 0.5rem;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 99px; padding: 6px 18px;
+  }
+  .stat-pill .num { font-size: 18px; font-weight: 700; }
+  .stat-pill .lbl { font-size: 12px; color: var(--muted); }
+  #stat-done .num { color: var(--teal); }
+  #stat-pct .num  { color: var(--purple); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem 2rem 0; }
+  .progress-track {
+    height: 4px; background: var(--bg3); border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--purple), var(--teal));
+    border-radius: 99px; transition: width 0.4s ease;
+  }
+  .progress-labels {
+    display: flex; justify-content: space-between; margin-top: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+
+  /* ── LAYOUT ── */
+  main { max-width: 860px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  /* ── SECTION ── */
+  .section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .section:hover { border-color: var(--border2); }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .section-icon {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .section-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 10px;
+    border-radius: 99px; border: 1px solid transparent; flex-shrink: 0;
+  }
+  .section-progress { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+  .chevron { font-size: 12px; color: var(--faint); transition: transform 0.25s; flex-shrink: 0; }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  /* colour themes per section */
+  .theme-purple .section-icon { background: var(--purple-bg); color: var(--purple); }
+  .theme-purple .section-badge { background: var(--purple-bg); color: var(--purple); border-color: rgba(167,139,250,0.25); }
+  .theme-teal   .section-icon { background: var(--teal-bg); color: var(--teal); }
+  .theme-teal   .section-badge { background: var(--teal-bg); color: var(--teal); border-color: rgba(52,211,153,0.25); }
+  .theme-blue   .section-icon { background: var(--blue-bg); color: var(--blue); }
+  .theme-blue   .section-badge { background: var(--blue-bg); color: var(--blue); border-color: rgba(96,165,250,0.25); }
+  .theme-amber  .section-icon { background: var(--amber-bg); color: var(--amber); }
+  .theme-amber  .section-badge { background: var(--amber-bg); color: var(--amber); border-color: rgba(251,191,36,0.25); }
+
+  /* ── ITEMS ── */
+  .items-container { display: none; }
+  .section.open .items-container { display: block; }
+
+  .item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: rgba(255,255,255,0.025); }
+
+  .checkbox {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 1.5px solid var(--faint);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+    transition: all 0.18s;
+  }
+  .item.done .checkbox {
+    background: var(--teal); border-color: var(--teal);
+  }
+  .item.done .checkbox::after {
+    content: ''; display: block;
+    width: 5px; height: 9px;
+    border: 2px solid #0f0f13;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+
+  .item-body { flex: 1; }
+  .item-top { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+  .item-text { font-size: 14px; font-weight: 500; }
+  .item.done .item-text { color: var(--faint); text-decoration: line-through; }
+  .item.done .item-desc { color: var(--faint); }
+
+  .item-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  .tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 7px;
+    border-radius: 4px; margin-top: 1px;
+  }
+  .tag-hw   { background: rgba(255,255,255,0.05); color: var(--muted); }
+  .tag-sw   { background: rgba(96,165,250,0.1);   color: var(--blue); }
+  .tag-audio{ background: rgba(167,139,250,0.1);  color: var(--purple); }
+
+  /* ── FOOTER / RESET ── */
+  .footer {
+    max-width: 860px; margin: 0 auto;
+    padding: 0 2rem 3rem;
+    display: flex; justify-content: flex-end;
+  }
+  .reset-btn {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 7px 16px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .reset-btn:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+
+  /* ── EXPAND ALL ── */
+  .toolbar {
+    max-width: 860px; margin: 0 auto;
+    padding: 0 2rem 1rem;
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+  .expand-btn {
+    font-size: 12px; color: var(--muted);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .expand-btn:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow"><i class="fa-solid fa-glasses"></i> Hardware Testing</div>
+  <h1>Smart Glasses — Component Test Suite</h1>
+  <p>A thorough bench checklist covering hardware, firmware, and audio validation for each module.</p>
+  <div class="stats-row">
+    <div class="stat-pill" id="stat-total"><span class="num" id="n-total">28</span><span class="lbl">total tests</span></div>
+    <div class="stat-pill" id="stat-done"><span class="num" id="n-done">0</span><span class="lbl">passed</span></div>
+    <div class="stat-pill" id="stat-remain"><span class="num" id="n-remain">28</span><span class="lbl">remaining</span></div>
+    <div class="stat-pill" id="stat-pct"><span class="num" id="n-pct">0%</span><span class="lbl">complete</span></div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="progress-labels"><span id="prog-label">0 of 28 tests complete</span><span>100%</span></div>
+</div>
+
+<div class="toolbar">
+  <button class="expand-btn" onclick="expandAll()">Expand all</button>
+  <button class="expand-btn" onclick="collapseAll()">Collapse all</button>
+</div>
+
+<main id="checklist"></main>
+
+<div class="footer">
+  <button class="reset-btn" onclick="resetAll()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset all tests</button>
+</div>
+
+<script>
+const sections = [
+  {
+    title: "ESP32-S3", sub: "Core microcontroller",
+    icon: "fa-solid fa-microchip", badge: "MCU", theme: "purple",
+    items: [
+      { text: "Power-on & boot sequence", tags: ["hw","sw"], desc: "Apply 3.3V. Confirm boot messages appear over USB serial at 115200 baud. Watch for IDF version string and no panic traces." },
+      { text: "USB serial communication", tags: ["sw"], desc: "Flash a hello-world sketch. Confirm TX/RX respond in terminal with no garbled output or framing errors." },
+      { text: "GPIO output — LED blink", tags: ["hw","sw"], desc: "Toggle a free GPIO pin every 500ms. Measure with multimeter or confirm LED blink. Verifies digital output and GPIO mapping." },
+      { text: "GPIO input — pull-up/down", tags: ["hw","sw"], desc: "Wire a button to a GPIO. Confirm INPUT_PULLUP reads HIGH at rest and LOW on press in serial monitor." },
+      { text: "I2S peripheral initialisation", tags: ["sw","audio"], desc: "Init I2S bus (BCLK, WS, DATA). Confirm no IDF error codes. Check with logic analyser that clocks are present on pins." },
+      { text: "Wi-Fi association", tags: ["hw","sw"], desc: "Connect to a 2.4GHz AP. Confirm IP assigned via DHCP. Ping a local host. Verifies RF stack and antenna." },
+      { text: "CPU clock & stability", tags: ["hw","sw"], desc: "Run a tight loop for 60s at full clock (240MHz). Monitor serial output for watchdog resets or exceptions." },
+      { text: "Deep sleep & wake-up", tags: ["sw"], desc: "Enter deep sleep for 5s, wake on timer. Confirm resume execution and re-init of all peripherals cleanly." },
+    ]
+  },
+  {
+    title: "MAX98357", sub: "I2S class-D amplifier",
+    icon: "fa-solid fa-volume-high", badge: "AMP", theme: "teal",
+    items: [
+      { text: "Power-up sequence", tags: ["hw"], desc: "Apply 3.3–5V to VDD. Leave SD_MODE floating (or tie HIGH) for stereo avg. Confirm no excessive current draw at idle (< 5mA)." },
+      { text: "I2S clock reception", tags: ["hw","audio"], desc: "With ESP32-S3 sending I2S clocks, probe BCLK and LRC on the MAX98357. Confirm clean signals at the correct frequency." },
+      { text: "Audio passthrough — sine wave", tags: ["audio","sw"], desc: "Send a 1kHz sine wave via I2S. Confirm audible clean tone from speaker with no distortion or oscillation." },
+      { text: "Gain setting verification", tags: ["hw","audio"], desc: "Test GAIN pin states: float = 9dB, GND = 3dB, VDD = 15dB. Measure perceptible loudness difference between each state." },
+      { text: "SD_MODE mute / unmute", tags: ["hw","sw"], desc: "Pull SD_MODE LOW; confirm amp mutes completely. Pull HIGH; confirm audio resumes cleanly. Tests software muting path." },
+      { text: "Output power & thermal", tags: ["hw","audio"], desc: "Drive 1W at 1kHz into 8Ω load for 30s. Confirm IC stays below 85°C. Scope output for clipping at near-rated power." },
+      { text: "Channel output (L / R)", tags: ["audio","sw"], desc: "Set LRCLK logic to select L or R channel. Confirm only the correct channel carries audio data on oscilloscope." },
+    ]
+  },
+  {
+    title: "1W 8Ω Speaker", sub: "Audio output transducer",
+    icon: "fa-solid fa-tower-broadcast", badge: "SPK", theme: "blue",
+    items: [
+      { text: "DC resistance check", tags: ["hw"], desc: "Measure impedance with multimeter across terminals. Should read ~6–7Ω (voice coil DC resistance). Far from expected indicates damage." },
+      { text: "Physical integrity inspection", tags: ["hw"], desc: "Inspect cone, surround, and leads for tears, dents, or loose solder joints. Press cone gently — should spring back uniformly." },
+      { text: "Low-level tone test", tags: ["hw","audio"], desc: "Drive with 100mW 1kHz sine. Listen for buzzing, rattling, or asymmetric cone movement indicating a damaged voice coil or foreign debris." },
+      { text: "Frequency response sweep", tags: ["audio"], desc: "Sweep 200Hz → 8kHz from ESP32. Confirm audible response across the range with no dead bands. Speaker is rated for voice/audio use." },
+      { text: "Near-rated power test", tags: ["hw","audio"], desc: "Drive with ~0.5W signal. Confirm clean output and no distortion after 15s continuous. Do not exceed rated 1W." },
+      { text: "Frame mounting resonance check", tags: ["hw","audio"], desc: "Once mounted in the glasses frame, repeat the tone test. Listen for new buzzing or rattling caused by frame coupling or loose screws." },
+    ]
+  },
+  {
+    title: "I2S MEMS Microphone", sub: "Digital audio capture",
+    icon: "fa-solid fa-microphone-lines", badge: "MIC", theme: "amber",
+    items: [
+      { text: "Power supply & current draw", tags: ["hw"], desc: "Apply 1.8–3.3V to VDD. Measure current: MEMS mics typically draw < 1mA at idle. Excessive draw suggests a short on VDD or GND." },
+      { text: "I2S clock & data pins", tags: ["hw","sw"], desc: "Probe SCK, WS, SD pins with logic analyser. Confirm DATA shows transitions when WS is asserted. No data = likely wrong L/R SELECT config." },
+      { text: "L / R channel assignment", tags: ["hw","sw"], desc: "Check SELECT pin: GND = left channel, VDD = right. Match with firmware. Mismatched config yields silence on the wrong half-frame." },
+      { text: "Capture ambient audio", tags: ["audio","sw"], desc: "Record 5s of ambient audio via ESP32 I2S read. Save to SD or stream over serial. Open in Audacity and confirm a clean waveform with noise floor." },
+      { text: "Voice pickup test", tags: ["audio","sw"], desc: "Speak at normal volume 30cm from mic. Confirm waveform shows clear modulation and is intelligible when played back." },
+      { text: "SNR & background noise floor", tags: ["audio","sw"], desc: "In a quiet room, record 2s of silence. Measure RMS noise in Audacity. Compare to voice recording to estimate SNR — should be ≥50dB." },
+      { text: "Clipping check at loud input", tags: ["audio","sw"], desc: "Clap loudly near the mic. Confirm waveform does not rail at ±full-scale for extended periods, which would indicate gain is too high." },
+      { text: "Simultaneous playback & capture", tags: ["audio","sw","hw"], desc: "Run speaker and mic together. Check for acoustic feedback loop or I2S bus conflicts. Both should operate cleanly in parallel without crosstalk." },
+    ]
+  }
+];
+
+const state = {};
+let total = 0;
+
+function buildChecklist() {
+  const wrap = document.getElementById('checklist');
+  sections.forEach((sec, si) => {
+    total += sec.items.length;
+    sec.items.forEach((_, ii) => state[`${si}-${ii}`] = false);
+
+    const tagHTML = tags => tags.map(t => {
+      const lbl = { hw:'hardware', sw:'firmware', audio:'audio' }[t];
+      return `<span class="tag tag-${t}">${lbl}</span>`;
+    }).join('');
+
+    const div = document.createElement('div');
+    div.className = `section theme-${sec.theme}`;
+    div.id = `sec-${si}`;
+    div.innerHTML = `
+      <div class="section-header" onclick="toggleSection(${si})">
+        <div class="section-icon"><i class="${sec.icon}"></i></div>
+        <div style="flex:1">
+          <div class="section-title">${sec.title}</div>
+          <div class="section-sub">${sec.sub}</div>
+        </div>
+        <span class="section-badge">${sec.badge}</span>
+        <span class="section-progress" id="sec-prog-${si}">0 / ${sec.items.length}</span>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="items-container">
+        ${sec.items.map((item, ii) => `
+          <div class="item" id="item-${si}-${ii}" onclick="toggle(${si},${ii})">
+            <div class="checkbox" id="cb-${si}-${ii}"></div>
+            <div class="item-body">
+              <div class="item-top">
+                <span class="item-text">${item.text}</span>
+                ${tagHTML(item.tags)}
+              </div>
+              <div class="item-desc">${item.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+
+  document.getElementById('n-total').textContent = total;
+  document.getElementById('n-remain').textContent = total;
+  document.getElementById('prog-label').textContent = `0 of ${total} tests complete`;
+
+  // open first section by default
+  document.getElementById('sec-0').classList.add('open');
+}
+
+function toggleSection(si) {
+  document.getElementById(`sec-${si}`).classList.toggle('open');
+}
+function expandAll() { document.querySelectorAll('.section').forEach(s => s.classList.add('open')); }
+function collapseAll() { document.querySelectorAll('.section').forEach(s => s.classList.remove('open')); }
+
+function toggle(si, ii) {
+  const k = `${si}-${ii}`;
+  state[k] = !state[k];
+  document.getElementById(`item-${si}-${ii}`).classList.toggle('done', state[k]);
+  updateStats();
+}
+
+function updateStats() {
+  const done = Object.values(state).filter(Boolean).length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('n-done').textContent = done;
+  document.getElementById('n-remain').textContent = total - done;
+  document.getElementById('n-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${done} of ${total} tests complete`;
+
+  sections.forEach((sec, si) => {
+    const secDone = sec.items.filter((_, ii) => state[`${si}-${ii}`]).length;
+    document.getElementById(`sec-prog-${si}`).textContent = `${secDone} / ${sec.items.length}`;
+  });
+}
+
+function resetAll() {
+  Object.keys(state).forEach(k => state[k] = false);
+  document.querySelectorAll('.item').forEach(el => el.classList.remove('done'));
+  updateStats();
+}
+
+buildChecklist();
+</script>
+</body>
+</html>
