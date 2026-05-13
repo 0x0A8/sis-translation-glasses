@@ -51,7 +51,7 @@ void setup() {
         Serial.println("Connection failed!");
         return;
     }
-    uint8_t begin_ms = millis();
+    unsigned long begin_ms = millis();
     // Send HTTP request
     client.println("POST " + url + " HTTP/1.1");
     client.println("Host: api.elevenlabs.io");
