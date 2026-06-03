@@ -3,7 +3,7 @@
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![Type](https://img.shields.io/badge/type-hardware%20%2B%20ML-blue)
-![Version](https://img.shields.io/badge/version-v0.1--planning-orange)
+![Version](https://img.shields.io/badge/version-v1.0--published-green)
 
 ---
 
